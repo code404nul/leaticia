@@ -1,0 +1,1 @@
+## FAISS + emotion similarity algo for find similar memories
