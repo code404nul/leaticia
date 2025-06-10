@@ -1,9 +1,13 @@
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 import math
+from huggingface_hub import snapshot_download
 
+local_model_path = snapshot_download("SamLowe/roberta-base-go_emotions")
 
-emotion_classifier = pipeline("text-classification", model="SamLowe/roberta-base-go_emotions", return_all_scores=True)
+tokenizer = AutoTokenizer.from_pretrained(local_model_path)
+model = AutoModelForSequenceClassification.from_pretrained(local_model_path)
 
+emotion_classifier = pipeline("text-classification", model=model, tokenizer=tokenizer, return_all_scores=True)
 
 def emotion_classify(input):
     """
