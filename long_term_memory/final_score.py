@@ -10,11 +10,14 @@ import math
 #query = "I'm going go hiking"
 
 def similarity_total(query):
+    """
+    Find similarities in past memory
+    input : query
+    output : [score, memory (str)]
+    """
     engine = SemanticSearchEngine()
     results = engine.search(query, 0)
     iec_query = emotion.index_emotionnal_charge(emotion.emotion_classify(query))
-
-    print(f"Query: {query} ; IEC: {iec_query}")
 
     outputs = []
     scores = []

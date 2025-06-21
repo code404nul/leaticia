@@ -2,7 +2,12 @@ from nltk.tokenize import sent_tokenize
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from emotion_eval import emotion
 import torch
+from json import dump, load
 from huggingface_hub import snapshot_download
+from os.path import dirname, join
+
+BASE_DIR = dirname(__file__)
+MEMORY_PATH = join(BASE_DIR, "personality.json")
 
 local_model_path = snapshot_download("KevSun/Personality_LM")
 
@@ -19,6 +24,14 @@ def predict_traits(text):
     return probs.tolist()
 
 def full_profile(text):
+    """
+    Give result of the BIG 5 result
+    input : text
+
+    result : 
+    - True if everything end correctly
+    - False is the file couldn't be writted
+    """
     sentences = sent_tokenize(text, language='english')
     trait_sums = torch.zeros(5)
     for sentence in sentences:
@@ -29,10 +42,14 @@ def full_profile(text):
 
     trait_avg = trait_sums / len(sentences)
     trait_names = ["Agreeableness", "Openness", "Conscientiousness", "Extraversion", "Neuroticism"]
-    return dict(zip(trait_names, [round(score.item(), 4) for score in trait_avg]))
 
+    try:
+        with open("find_prompt/personality.json", "a") as outfile:
+            dump(dict(zip(trait_names, [round(score.item(), 4) for score in trait_avg])), outfile)
+        return True
+    except: return False
 
-user_text = """I love exploring new ideas, but I often procrastinate. I enjoy time alone to reflect. 
-I sometimes enjoy debates with friends. I'm sensitive to criticism. I try to plan, but I get overwhelmed easily."""
-
-print(full_profile(user_text))
+def get_personnality():
+    with open(MEMORY_PATH, "r", encoding="utf-8") as f:
+        data = load(f)
+    return data
